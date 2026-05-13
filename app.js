@@ -4,8 +4,16 @@ const app = express();
 const tareasRouter = require('./routers/tareasRouter');
 
 app.use(express.json());
-
+app.use(express.static("public"));
 app.use('/', tareasRouter);
+//motor de vistas
+app.set('view engine', 'pug');
+//rutas de donde servise de vistas
+app.set('views', [__dirname + '/public']);
+
+app.get('/', (req, res) => {
+  res.render("tareas");
+});
 
 app.listen(3000, () => {
   console.log('Servidor corriendo en puerto 3000');

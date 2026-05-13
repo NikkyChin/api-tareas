@@ -1,18 +1,20 @@
 // Controlador para manejar las tareas
-const tareas = [
-  { id: 1, titulo: "Estudiar Git", descripcion: "Aprender a usar Git para control de versiones" },
-  { id: 2, titulo: "Hacer API", descripcion: "Crear endpoints para la API" },
-  { id: 3, titulo: "Hacer pruebas", descripcion: "Escribir pruebas unitarias" },
-  { id: 4, titulo: "Hacer README", descripcion: "Escribir documentación del proyecto" }
-];
+// Importar el módulo de archivos para leer el archivo JSON
+const fs = require("fs");
 
 // Obtener todas las tareas
 const obtenerTareas = (req, res) => {
+  const data = fs.readFileSync("tareas.json", "utf8");
+
+  const tareas = JSON.parse(data);
+
   res.json(tareas);
 };
 
 // Obtener detalle de una tarea por ID
 const detalleTarea = (req, res ) => {
+  const data = fs.readFileSync("tareas.json", "utf8");
+  const tareas = JSON.parse(data);
   const id = parseInt(req.params.id);
   const tarea = tareas.find(t => t.id === id);
 
@@ -23,7 +25,22 @@ const detalleTarea = (req, res ) => {
   }
 };
 
+const crearTarea = (req, res) => {
+  const data = fs.readFileSync("tareas.json", "utf8");
+  const tareas = JSON.parse(data);
+  const nuevaTarea = {
+    id: tareas.length + 1,
+    titulo: req.body.titulo,
+    descripcion: req.body.descripcion
+  };
+  tareas.push(nuevaTarea);
+  fs.writeFileSync("tareas.json", JSON.stringify(tareas));
+
+  res.status(201).json(nuevaTarea);
+};
+
 module.exports = {
   obtenerTareas,
-  detalleTarea
+  detalleTarea,
+  crearTarea
 };
