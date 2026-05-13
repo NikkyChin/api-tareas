@@ -4,6 +4,7 @@ const fs = require("fs");
 
 // Obtener todas las tareas
 const obtenerTareas = (req, res) => {
+  //llama al archivo tareas.js ubicado en el directorio raiz
   const data = fs.readFileSync("tareas.json", "utf8");
 
   const tareas = JSON.parse(data);
@@ -25,6 +26,7 @@ const detalleTarea = (req, res ) => {
   }
 };
 
+//crea tarea
 const crearTarea = (req, res) => {
   const data = fs.readFileSync("tareas.json", "utf8");
   const tareas = JSON.parse(data);
