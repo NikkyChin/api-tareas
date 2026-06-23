@@ -1,0 +1,55 @@
+# Este archivo define un flujo de trabajo de integración continua para la aplicación "api-tareas". Se ejecuta en cada push a la rama principal y realiza las siguientes acciones:
+    # 1. Descarga el código fuente del repositorio (Checkout).
+    # 2. Configura el entorno de Node.js.
+    # 3. Instala las dependencias del proyecto.
+    # 4. Ejecuta las pruebas automatizadas.
+    # 5. Inicia sesión en GitHub Container Registry (GHCR).
+    # 6. Construye la imagen Docker de la aplicación.
+    # 7. Publica la imagen Docker en GHCR.
+
+name: Integración Continua
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test-docker:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/api-tareas:latest .
+
+      - name: Push Docker image
+        run: |
+          docker push ghcr.io/${{ github.repository }}/api-tareas:latest
