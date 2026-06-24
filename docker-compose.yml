@@ -1,0 +1,10 @@
+services:
+  api:
+    build: .
+    container_name: api-tareas
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/api-tareas
+      - /api-tareas/node_modules
+    command: node server.js
