@@ -20,4 +20,21 @@ describe('API Tareas', () => {
     expect(response.body.id).toBe(1);
   });
 
+  // Test para agregar una nueva tarea
+  test('POST /tareas agrega una tarea', async () => {
+    const response =
+        await request(app)
+            .post('/tareas')
+            .send({
+                titulo: 'Aprender Unit Testing',
+            });
+
+    expect(response.statusCode)
+        .toBe(201);
+
+    expect(response.body.titulo)
+        .toBe('Aprender Unit Testing');
+
+  });
+
 });
