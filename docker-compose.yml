@@ -1,6 +1,6 @@
 services:
   api:
-    build: .
+    image: ghcr.io/nikkychin/api-tareas:latest
     container_name: api-tareas
     ports:
       - "3000:3000"
