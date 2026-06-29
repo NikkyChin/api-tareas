@@ -1,11 +1,13 @@
-# Este archivo define un flujo de trabajo de integración continua para la aplicación "api-tareas". Se ejecuta en cada push a la rama principal y realiza las siguientes acciones:
-    # 1. Descarga el código fuente del repositorio (Checkout).
-    # 2. Configura el entorno de Node.js.
-    # 3. Instala las dependencias del proyecto.
-    # 4. Ejecuta las pruebas automatizadas.
-    # 5. Inicia sesión en GitHub Container Registry (GHCR).
-    # 6. Construye la imagen Docker de la aplicación.
-    # 7. Publica la imagen Docker en GHCR.
+# Workflow de Integración Continua (CI) para la aplicación "api-tareas".
+# Se ejecuta automáticamente en cada push a la rama main.
+#
+# El pipeline está dividido en tres jobs:
+# 1. Build: descarga el código, configura Node.js e instala las dependencias.
+# 2. Test: ejecuta las pruebas automatizadas para validar el funcionamiento de la API.
+# 3. Docker: inicia sesión en GitHub Container Registry (GHCR), construye la imagen Docker y la publica en GHCR.
+#
+# La ejecución es secuencial mediante "needs": Build → Test → Docker.
+# Si un job falla, los siguientes no se ejecutan.
 
 name: Integración Continua
 
@@ -15,16 +17,29 @@ on:
       - main
 
 jobs:
-  build-test-docker:
 
+  build:
+    name: Build
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: build
 
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -39,6 +54,19 @@ jobs:
       - name: Run tests
         run: npm test
 
+  docker:
+    name: Docker
+    runs-on: ubuntu-latest
+    needs: test
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -47,9 +75,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Docker image
-        run: |
-          docker build -t ghcr.io/nikkychin/api-tareas:latest .
+        run: docker build -t ghcr.io/nikkychin/api-tareas:latest .
 
       - name: Push Docker image
-        run: |
-          docker push ghcr.io/nikkychin/api-tareas:latest
+        run: docker push ghcr.io/nikkychin/api-tareas:latest
